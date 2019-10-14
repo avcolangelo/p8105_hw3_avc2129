@@ -6,10 +6,30 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, message = FALSE)
 
 library(tidyverse)
 library(p8105.datasets)
+library(dplyr)
+library(patchwork)
+library(viridis)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  fig.width = 8,
+  fig.height = 6,
+  out.width = "90%"
+  )
+
+  options(
+    ggplot2.continuous.colour = "viridis",
+    ggplot2.continuous.fill = "viridis"
+  )
+  
+  scale_colour_discrete = scale_colour_viridis_d
+  scale_fill_discrete = scale_fill_viridis_d
+  
+  theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
 ```
 
@@ -20,13 +40,49 @@ The goal is to do some exploration of this dataset. To that end, write a short d
 data("instacart")
 ```
 
-There are `r nrow(instacart)` total observations in this dataset of `r n_distinct(pull(instacart, user_id))` unique users and `r ncol(instacart)` variables. Character variables include `eval_set`, `product_name`, `aisle`, and `department`, and the rest of the variables in the dataset are numeric. The average hour of the day that each product was ordered was hour `r instacart %>% pull(order_hour_of_day) %>% mean`. 
+There are `r nrow(instacart)` total observations in this dataset of `r n_distinct(pull(instacart, user_id))` unique users and `r ncol(instacart)` variables. Character variables include `eval_set`, `product_name`, `aisle`, and `department`, and the rest of the variables in the dataset are numeric. The average hour of the day that each product was ordered was hour `r instacart %>% pull(order_hour_of_day) %>% mean`, while the median day of the week of each product was ordered was day `r instacart %>% pull(order_dow) %>% median`. 
 
-Illustrative example:
+Example:
+Order id #1 has a user id of 112108 and this was their fourth order on Instacart. They ordered this at 10am and ordered eight products such as Bulgarian Yogurt and organic celery hearts. We can also determine the department and aisle from which each product came from. We can also tell it's been 9 days since their previous order.
 
+```{r}
+instacart %>%
+  filter(order_id == 1)
+```
 
 * How many aisles are there, and which aisles are the most items ordered from?
+
+There are `r n_distinct(pull(instacart, aisle_id))` aisles. The aisles most items are ordered from are fresh vegetables, fresh fruits, and packaged vegetables fruits
+
+
+```{r}
+instacart %>%
+  count(aisle) %>%
+  arrange(desc(n))
+```
+
 * Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+```{r}
+instacart %>%
+  group_by(aisle) %>%
+  count(aisle) %>%
+  filter(n > 10000) %>%
+  ggplot(aes(x = reorder(aisle, n), y = n)) +
+  geom_point() +
+  labs(
+    title = "Items Ordered in Aisles",
+    x = "Aisle",
+    y = "Number of Items"
+    ) +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) 
+  
+```
+
+
+
+
 * Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
 * Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table)
 
