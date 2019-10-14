@@ -274,11 +274,20 @@ accel_data %>%
   knitr::kable()
 ```
 
-
-
 * Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph
 
+There does not appear to be a linear relationship for amount of activity and day increase.
 
+```{r}
+accel_data %>% 
+  ggplot(aes(x = day_id, y = activity_counts), color = day_of_week) +
+  geom_line() +
+  labs(
+    title = "Accelerometer Activity over Course of Day",
+    x = "Day",
+    y = "Activity Counts"
+    )  +
+    theme(legend.position = "bottom") 
 
-
+```
 
